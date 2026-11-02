@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orbit Agent — Demo Video Generator</title>
+    <style>
+      :root { font-family: Arial, sans-serif; color: #17233d; background: #f5f7fb; }
+      body { display: grid; min-height: 100vh; place-items: center; margin: 0; padding: 24px; }
+      main { width: min(100%, 1000px); text-align: center; }
+      h1 { margin: 0 0 8px; font-size: 25px; }
+      p { color: #687791; font-size: 14px; line-height: 1.5; }
+      canvas, video { display: block; width: 100%; margin: 22px auto; border: 1px solid #d9e1ef; border-radius: 12px; background: #fff; box-shadow: 0 16px 35px rgba(33, 56, 106, .12); }
+      video { display: none; }
+      .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      button, a { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border: 0; border-radius: 8px; color: #fff; background: #4169e1; font: 700 13px Arial, sans-serif; text-decoration: none; cursor: pointer; }
+      button:disabled { opacity: .55; cursor: wait; }
+      a { display: none; background: #1e9c69; }
+      .note { margin-top: 12px; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Orbit Agent demo video</h1>
+      <p>Generate a 16-second WebM walkthrough showing search, human approval, and task creation.</p>
+      <canvas id="demoCanvas" width="1280" height="720" aria-label="Orbit Agent animated demo preview"></canvas>
+      <video id="videoPreview" controls aria-label="Generated Orbit Agent demo video"></video>
+      <div class="actions">
+        <button id="generateVideo">Generate &amp; preview video</button>
+        <a id="downloadVideo" download="orbit-agent-demo.webm">Download WebM video</a>
+      </div>
+      <p class="note" id="status">Preview is ready. Generating takes about 16 seconds.</p>
+    </main>
+    <script>
+      const canvas = document.querySelector("#demoCanvas");
+      const ctx = canvas.getContext("2d");
+      const button = document.querySelector("#generateVideo");
+      const download = document.querySelector("#downloadVideo");
+      const preview = document.querySelector("#videoPreview");
+      const status = document.querySelector("#status");
+      const duration = 16;
+
+      function roundedRect(x, y, width, height, radius, fill, stroke) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, radius);
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+      }
+      function text(value, x, y, size, color, weight) {
+        ctx.fillStyle = color || "#17233d";
+        ctx.font = (weight || "400") + " " + size + "px Arial";
+        ctx.fillText(value, x, y);
+      }
+      function line(value, x, y, size, color, width) {
+        ctx.fillStyle = color || "#687791";
+        ctx.font = "400 " + size + "px Arial";
+        const words = value.split(" ");
+        let row = "";
+        let top = y;
+        for (const word of words) {
+          const test = row ? row + " " + word : word;
+          if (ctx.measureText(test).width > width && row) {
+            ctx.fillText(row, x, top);
+            row = word;
+            top += size * 1.45;
+          } else row = test;
+        }
+        if (row) ctx.fillText(row, x, top);
+      }
+      function phase(time) {
+        if (time < 4) return 0;
+        if (time < 9) return 1;
+        if (time < 13) return 2;
+        return 3;
+      }
+      function render(time) {
+        const current = phase(time);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#f7f9fc";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#111d3a";
+        ctx.fillRect(0, 0, 230, 720);
+        roundedRect(22, 25, 34, 34, 10, "#8eb9ff");
+        text("✦", 32, 49, 20, "#14213d", "700");
+        text("orbit.ai", 66, 49, 22, "#ffffff", "700");
+        text("ACME WORKSPACE", 26, 111, 10, "#91a2c7", "700");
+        roundedRect(18, 128, 194, 42, 9, "#2c4170");
+        text("✦", 32, 155, 17, "#9cc7ff", "700");
+        text("Agent chat", 59, 154, 13, "#ffffff", "700");
+        text("✓", 32, 207, 17, "#aebbd5", "700");
+        text("Tasks", 59, 205, 13, "#aebbd5", "700");
+        text("⌘", 31, 257, 17, "#aebbd5", "700");
+        text("Tool activity", 59, 255, 13, "#aebbd5", "700");
+        text("TOOL-USING AI AGENT", 290, 75, 11, "#4169e1", "700");
+        text("An assistant that stays in your control.", 290, 120, 31, "#17233d", "700");
+        text("Safe mock workspace · human approval for writes", 290, 149, 14, "#71809b");
+        roundedRect(1000, 49, 115, 27, 8, "#eefbf5");
+        text("●  Safe mode", 1015, 67, 11, "#35745a", "700");
+        roundedRect(290, 186, 610, 340, 13, "#ffffff", "#e3e8f2");
+        text("ORBIT", 319, 221, 10, "#8e9bb1", "700");
+        roundedRect(319, 233, 491, 48, 10, "#f1f5ff");
+        text("Hi Maya! I can search your workspace or prepare a task.", 336, 262, 13, "#3e4d68");
+        if (current === 0) {
+          text("MAYA", 704, 307, 10, "#8e9bb1", "700");
+          roundedRect(465, 318, 345, 44, 10, "#eaf1ff");
+          text("Search for Q4 launch notes", 487, 345, 13, "#24478e");
+          text("ORBIT", 319, 392, 10, "#8e9bb1", "700");
+          roundedRect(319, 404, 491, 83, 10, "#ffffff", "#e4e9f3");
+          text("I found 1 relevant result.", 336, 430, 13, "#3e4d68");
+          text("Q4 launch notes · Project note · Jordan Lee", 336, 459, 12, "#4e6490", "700");
+        }
+        if (current === 1) {
+          text("MAYA", 644, 307, 10, "#8e9bb1", "700");
+          roundedRect(400, 318, 410, 44, 10, "#eaf1ff");
+          text("Create a task to review the campaign brief", 419, 345, 13, "#24478e");
+          roundedRect(319, 382, 491, 118, 10, "#f7faff", "#c8dbff");
+          text("✓  Ready to create this task", 338, 410, 13, "#2655b0", "700");
+          text("Review the campaign brief", 338, 441, 13, "#253653", "700");
+          text("Due tomorrow · waiting for your approval", 338, 462, 11, "#7e8da7");
+          roundedRect(614, 470, 174, 22, 6, "#4169e1");
+          text("Approve & create", 641, 486, 10, "#ffffff", "700");
+        }
+        if (current === 2) {
+          roundedRect(319, 315, 491, 93, 10, "#effbf6", "#c8e9d9");
+          text("✓  Task created after human approval", 338, 346, 14, "#2f8059", "700");
+          text("Review the campaign brief", 338, 375, 13, "#354963");
+          text("Due tomorrow · created by Orbit", 338, 395, 11, "#6d8d7d");
+        }
+        if (current === 3) {
+          text("YOUR TASKS", 319, 325, 10, "#4169e1", "700");
+          roundedRect(319, 343, 491, 60, 10, "#ffffff", "#e2e7ef");
+          roundedRect(338, 363, 19, 19, 10, "#3ca774");
+          text("✓", 342, 378, 12, "#ffffff", "700");
+          text("Review the campaign brief", 374, 371, 13, "#34435e", "700");
+          text("Created after exact human approval", 374, 389, 11, "#8c9ab0");
+          text("Due tomorrow", 700, 379, 11, "#71809a");
+        }
+        roundedRect(928, 186, 314, 340, 13, "#ffffff", "#e3e8f2");
+        text("LIVE TRACE", 951, 218, 10, "#8391a8", "700");
+        text("Agent activity", 951, 244, 18, "#17233d", "700");
+        const traceRows = current === 0 ? [["⌘", "Tool call", "search_mock_data(...)", "#e9f0ff"], ["✓", "Tool result", "1 mock record returned", "#e4f8ef"]] : current === 1 ? [["⌘", "Tool selected", "create_task(...)", "#e9f0ff"], ["⌘", "Approval required", "Write action paused", "#fff1d9"]] : current === 2 ? [["⌘", "Approval received", "Exact action confirmed", "#e9f0ff"], ["✓", "Task created", "id: demo-2026", "#e4f8ef"]] : [["✓", "Task created", "Human-approved action", "#e4f8ef"], ["⌘", "Session memory", "1 task retained", "#e9f0ff"]];
+        traceRows.forEach(function (row, index) {
+          const y = 286 + index * 65;
+          roundedRect(951, y, 24, 24, 12, row[3]);
+          text(row[0], 958, y + 17, 12, "#3e679f", "700");
+          text(row[1], 989, y + 10, 11, "#42516a", "700");
+          text(row[2], 989, y + 28, 10, "#8a98ae");
+        });
+        const captions = [
+          "Read-only search: the agent safely looks up mock workspace information.",
+          "Write request: Orbit prepares an exact task and stops for human confirmation.",
+          "Explicit approval: only then does the server call the create_task action.",
+          "Memory: the approved task remains available for later turns in the session."
+        ];
+        roundedRect(248, 585, 983, 92, 13, "#17233d");
+        text("DEMO", 280, 618, 10, "#9cc7ff", "700");
+        line(captions[current], 280, 648, 18, "#ffffff", 900);
+        roundedRect(280, 662, 900, 4, 2, "#3c4963");
+        roundedRect(280, 662, 900 * Math.min(time / duration, 1), 4, 2, "#6a8dff");
+      }
+      function animatePreview() {
+        render((performance.now() / 1000) % duration);
+        requestAnimationFrame(animatePreview);
+      }
+      button.addEventListener("click", function () {
+        if (!window.MediaRecorder || !canvas.captureStream) {
+          status.textContent = "This browser does not support in-page WebM recording. Open this file in current Chrome or Edge.";
+          return;
+        }
+        button.disabled = true;
+        download.style.display = "none";
+        preview.style.display = "none";
+        status.textContent = "Recording the 16-second demo…";
+        const stream = canvas.captureStream(30);
+        const options = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? { mimeType: "video/webm;codecs=vp9" } : { mimeType: "video/webm" };
+        const recorder = new MediaRecorder(stream, options);
+        const chunks = [];
+        recorder.addEventListener("dataavailable", function (event) { if (event.data.size) chunks.push(event.data); });
+        recorder.addEventListener("stop", function () {
+          const url = URL.createObjectURL(new Blob(chunks, { type: "video/webm" }));
+          preview.src = url;
+          preview.style.display = "block";
+          download.href = url;
+          download.style.display = "inline-flex";
+          button.disabled = false;
+          status.textContent = "Your demo video is ready to preview or download.";
+        });
+        const start = performance.now();
+        function recordFrame(now) {
+          const seconds = Math.min((now - start) / 1000, duration);
+          render(seconds);
+          if (seconds < duration) requestAnimationFrame(recordFrame);
+          else recorder.stop();
+        }
+        recorder.start();
+        requestAnimationFrame(recordFrame);
+      });
+      animatePreview();
+    </script>
+  </body>
+</html>

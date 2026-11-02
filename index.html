@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A safe tool-using AI agent demo." />
+    <title>Orbit Agent — Tool Calling Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#top" aria-label="Orbit Agent home">
+          <span class="brand-mark">✦</span><span>orbit<span class="brand-muted">.ai</span></span>
+        </a>
+
+        <div class="workspace-card">
+          <div class="workspace-icon">AC</div>
+          <div><strong>Acme workspace</strong><span>Demo environment</span></div>
+          <button class="icon-button" aria-label="Workspace menu">•••</button>
+        </div>
+
+        <nav class="nav" aria-label="Primary navigation">
+          <a class="active" href="#chat"><span>✦</span> Agent chat</a>
+          <a href="#tasks"><span>✓</span> Tasks <b id="taskCount">0</b></a>
+          <a href="#tools"><span>⌘</span> Tool activity</a>
+        </nav>
+
+        <section class="agent-status">
+          <div class="status-dot"></div>
+          <div><strong>Agent online</strong><span>Guardrails enabled</span></div>
+        </section>
+
+        <div class="sidebar-footer">Prototype · v1.0</div>
+      </aside>
+
+      <section class="main-content" id="top">
+        <header class="topbar">
+          <div class="breadcrumbs"><span>Agents</span><span>/</span><strong>Operations assistant</strong></div>
+          <div class="top-actions"><span class="secure-badge"><i></i> Safe mode</span><button class="avatar" aria-label="User profile">MA</button></div>
+        </header>
+
+        <div class="content-grid">
+          <section class="chat-panel" id="chat">
+            <div class="chat-heading">
+              <div>
+                <p class="eyebrow">TOOL-USING AI AGENT</p>
+                <h1>What can I help you get done?</h1>
+                <p class="subheading">I can search your workspace or prepare a task. I’ll always ask before creating anything.</p>
+              </div>
+              <div class="agent-orb" aria-hidden="true"><span>✦</span></div>
+            </div>
+
+            <div class="prompt-chips" aria-label="Try an example">
+              <button class="tour-button" id="runTour">▶ Run guided demo</button>
+              <button data-prompt="Search for Q4 launch notes">Search Q4 launch notes</button>
+              <button data-prompt="Create a task to review the campaign brief tomorrow">Create a task</button>
+              <button data-prompt="Show my tasks">Show my tasks</button>
+            </div>
+
+            <div class="conversation" id="conversation" aria-live="polite">
+              <article class="message assistant-message">
+                <div class="message-avatar assistant-avatar">✦</div>
+                <div class="message-body"><span class="message-label">ORBIT</span><p>Hi Maya! I’m your operations assistant. Ask me to search the mock workspace, or ask me to create a task.</p></div>
+              </article>
+            </div>
+
+            <form class="composer" id="composer">
+              <label class="sr-only" for="messageInput">Message Orbit</label>
+              <textarea id="messageInput" rows="1" placeholder="Ask Orbit anything…" autocomplete="off"></textarea>
+              <button class="send-button" type="submit" aria-label="Send message">↑</button>
+            </form>
+            <p class="composer-note">Orbit can make mistakes. Review proposed actions before approving.</p>
+          </section>
+
+          <aside class="inspector" id="tools">
+            <section class="info-card">
+              <div class="card-heading"><div><p class="eyebrow">LIVE TRACE</p><h2>Agent activity</h2></div><span class="live-pill"><i></i> Live</span></div>
+              <ol class="trace-list" id="traceList">
+                <li class="trace-empty"><span>⌁</span><p>Your agent’s reasoning and tool calls will appear here.</p></li>
+              </ol>
+            </section>
+
+            <section class="info-card memory-card">
+              <div class="card-heading"><div><p class="eyebrow">SESSION MEMORY</p><h2>Current context</h2></div></div>
+              <div class="memory-row"><span>Workspace</span><strong>Acme workspace</strong></div>
+              <div class="memory-row"><span>Tasks created</span><strong id="memoryTaskCount">0</strong></div>
+              <div class="memory-row"><span>Pending approval</span><strong id="pendingState">None</strong></div>
+            </section>
+
+            <section class="guardrail-callout">
+              <span class="shield">♢</span>
+              <div><strong>Human in the loop</strong><p>Creating tasks is a sensitive write action. Orbit needs your explicit approval.</p></div>
+            </section>
+          </aside>
+        </div>
+
+        <section class="tasks-section" id="tasks">
+          <div class="section-heading"><div><p class="eyebrow">CREATED BY ORBIT</p><h2>Your tasks</h2></div><button class="text-button" id="clearTasks">Clear completed</button></div>
+          <div class="task-list" id="taskList"><div class="empty-tasks"><span>✓</span><p>Nothing here yet. Ask Orbit to create your first task.</p></div></div>
+        </section>
+      </section>
+    </main>
+    <aside class="tour-popover" id="tourPopover" aria-live="polite" hidden>
+      <button class="tour-close" id="closeTour" aria-label="Close guided demo">×</button>
+      <p class="eyebrow" id="tourStep">GUIDED DEMO · 1 OF 3</p>
+      <h2 id="tourTitle">A safe read-only tool call</h2>
+      <p id="tourText">I’ll search the mock workspace now. Watch the chat response and the Live Trace panel—the agent can use a read-only tool without asking for approval.</p>
+      <button class="tour-next" id="tourNext">Next step <span>→</span></button>
+    </aside>
+    <script src="app.js"></script>
+  </body>
+</html>
