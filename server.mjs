@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const root = path.dirname(fileURLToPath(import.meta.url));
 loadEnv(path.join(root, ".env"));
 
-const port = Number(process.env.PORT || 3000);
+const requestedPort = process.env.PORT === undefined ? 3000 : Number(process.env.PORT);
 const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
 const apiKey = process.env.OPENAI_API_KEY || "";
 const sessions = new Map();
@@ -330,6 +330,23 @@ setInterval(() => {
   for (const [id, session] of sessions) if (session.updatedAt < cutoff) sessions.delete(id);
 }, 15 * 60 * 1000).unref();
 
-server.listen(port, () => {
-  console.log(`Orbit Agent running at http://localhost:${port} (${apiKey ? `live OpenAI mode: ${model}` : "safe demo mode; add OPENAI_API_KEY to .env for live tool calling"})`);
-});
+function startServer(port) {
+  const onListenError = error => {
+    if (error?.code === "EADDRINUSE" && port !== 0) {
+      console.warn(`Port ${port} is busy. Orbit is choosing an available local port instead.`);
+      startServer(0);
+      return;
+    }
+    throw error;
+  };
+
+  server.once("error", onListenError);
+  server.listen(port, () => {
+    server.off("error", onListenError);
+    const address = server.address();
+    const activePort = typeof address === "object" && address ? address.port : port;
+    console.log(`Orbit Agent running at http://localhost:${activePort} (${apiKey ? `live OpenAI mode: ${model}` : "safe demo mode; add OPENAI_API_KEY to .env for live tool calling"})`);
+  });
+}
+
+startServer(requestedPort);

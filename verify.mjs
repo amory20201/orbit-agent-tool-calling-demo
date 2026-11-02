@@ -6,7 +6,9 @@ const { server } = await import("./server.mjs");
 
 if (!server.listening) await once(server, "listening");
 
-const baseUrl = "http://127.0.0.1:3417";
+const address = server.address();
+const port = typeof address === "object" && address ? address.port : 3417;
+const baseUrl = `http://127.0.0.1:${port}`;
 const sessionId = randomUUID();
 
 async function post(path, body) {
